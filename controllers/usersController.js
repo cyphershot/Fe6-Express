@@ -40,3 +40,13 @@ exports.userRegister = async (req,res)=>{
     }
 
 }
+
+// get all users
+exports.getallusers = async (req,res)=>{
+    try{
+        const userdata  = await users.find()
+        res.status(200).json(userdata)
+    } catch(error){
+        res.status(401).json(error)
+    }
+}

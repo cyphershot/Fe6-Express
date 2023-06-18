@@ -9,6 +9,9 @@ const upload = require('../multerConfig/storageMulter')
 
 router.post('/employee/register',upload.single('user_profile'),userController.userRegister)
 
+// get all users
+router.get('/get-all-employees',userController.getallusers)
+
 
 
 
