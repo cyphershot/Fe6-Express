@@ -50,3 +50,21 @@ exports.getallusers = async (req,res)=>{
         res.status(401).json(error)
     }
 }
+
+
+// get a user
+
+exports.getuserdetail = async (req,res)=>{
+    const {id} = req.params
+    try{
+        const userdata  = await users.findOne({_id:id})
+        if(userdata){
+            res.status(200).json(userdata)
+        }else{
+            res.status(404).json("User doesnot exist!")
+        }
+      
+    }catch(error){
+        res.status(401).json(error)
+    }
+}

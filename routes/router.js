@@ -12,6 +12,8 @@ router.post('/employee/register',upload.single('user_profile'),userController.us
 // get all users
 router.get('/get-all-employees',userController.getallusers)
 
+// get user details
+router.get('/employee/view/:id',userController.getuserdetail)
 
 
 
