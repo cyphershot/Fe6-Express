@@ -15,60 +15,25 @@ app.use(router)
 
 
 
-
-
 app.get("/",cors(),(req,res)=>{
 
 })
+// client side
+const clientRoute = require("./clientside/clientSide")
 
+app.use("/",clientRoute);
+app.use("/signup",clientRoute);
 
-app.post("/",async(req,res)=>{
-    const{email,password}=req.body
-
-    try{
-        const check=await collection.findOne({email:email})
-
-        if(check){
-            res.json("exist")
-        }
-        else{
-            res.json("notexist")
-        }
-
-    }
-    catch(e){
-        res.json("fail")
-    }
-
-})
+// admin side
+const adminRoute = require("./adminSide/adminSide")
+app.use("/adminlogin",adminRoute);
+app.use("/adminsignup",adminRoute);
 
 
 
-app.post("/signup",async(req,res)=>{
-    const{email,password}=req.body
 
-    const data={
-        email:email,
-        password:password
-    }
 
-    try{
-        const check=await collection.findOne({email:email})
 
-        if(check){
-            res.json("exist")
-        }
-        else{
-            res.json("notexist")
-            await collection.insertMany([data])
-        }
-
-    }
-    catch(e){
-        res.json("fail")
-    }
-
-})
 
 app.listen(8000,()=>{
     console.log("port connected");

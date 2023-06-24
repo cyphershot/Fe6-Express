@@ -22,10 +22,21 @@ const newSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  name: {
+    type: String,
+    required: true,
+  },
+  location: {
+    type: String,
+    required: true,
+  },
+  profile: {
+    type: String,
+    required: true,
+  }
+  
 });
 
 const collection = mongoose.model('collection', newSchema);
 
 module.exports = collection;
-
-

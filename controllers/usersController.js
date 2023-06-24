@@ -5,6 +5,7 @@ const users = require("../schemas/userSchema");
 exports.userRegister = async (req,res)=>{
 
     console.log(req.file);
+    // to get image url
 
     const file = req.file.filename
 
@@ -68,3 +69,26 @@ exports.getuserdetail = async (req,res)=>{
         res.status(401).json(error)
     }
 }
+
+// editUser
+// exports.editUser =  async (req,res)=>{
+//     const {id} =  req.params
+//     const {customerName,companyName,email,contactNumber,GSTNumber,requireService,qty, orderValue,user_profile} = req.body
+//      // to get image url
+
+//      const file = req.file ? req.file.filename: user_profile
+
+//      try{
+//              const updateUser = await users.findByIdAndUpdate({_id:id},{
+//                 customerName,companyName,email,contactNumber,GSTNumber,requireService,qty,orderValue,profile:file
+//              },{
+//                 new:true
+//              })
+
+//      }catch(error){
+//         res.status(401).json(error)
+//     }
+
+     
+
+// }

@@ -15,6 +15,8 @@ router.get('/get-all-employees',userController.getallusers)
 // get user details
 router.get('/employee/view/:id',userController.getuserdetail)
 
+// edit user 
+// router.put('/employee/edit/:id',userController.editUser)
 
 
 
