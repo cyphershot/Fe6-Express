@@ -1,25 +1,25 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const Client = require('./../../schemas/clientSchema');
-const { getRouteByKey } = require('./../../routes/routes');
+const AdminClient = require('../../schemas/admin');
+const { getRouteByKey } = require('../../routes/routes');
 
-const clientSignUpRoute = {
-  path: getRouteByKey('clientSignUp'),
+const adminSignUpRoute = {
+  path: getRouteByKey('adminSignUp'),
   method: 'post',
   handler: async (req, res) => {
     const { email, password } = req.body;
-
     try {
-      await Client.findOne({ email });
+      await AdminClient.findOne({ email });
 
       const passwordHash = await bcrypt.hash(password, 10);
-      const newUser = await Client.create({ email, password: passwordHash });
+      const newUser = await AdminClient.create({ email, password: passwordHash, isAdmin: true });
 
-      const { _id, email: savedEmail } = newUser;
+      const { _id, email: savedEmail, isAdmin } = newUser;
       jwt.sign(
         {
           id: _id,
           savedEmail,
+          isAdmin,
         },
         process.env.JWT_SECRET,
         {
@@ -41,4 +41,4 @@ const clientSignUpRoute = {
   },
 };
 
-module.exports = { clientSignUpRoute };
+module.exports = { adminSignUpRoute };

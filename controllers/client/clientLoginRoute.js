@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { getRouteByKey } = require('../../routes/routes');
-const Client = require('./../../schemas/clientSchema');
+const Client = require('../../schemas/client');
 
 const clientLoginRoute = {
   path: getRouteByKey('clientLoginIn'),
