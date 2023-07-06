@@ -16,4 +16,4 @@ const getDbConnection = dbName => {
   return client.useDb(dbName);
 };
 
-module.exports = { establishDbConnection, getDbConnection };
+module.exports = { establishDbConnection, getDbConnection }

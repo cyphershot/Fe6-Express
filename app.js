@@ -3,16 +3,12 @@ const cors = require('cors');
 const routes = require('./routes/index');
 const { establishDbConnection } = require('./mongo');
 require('dotenv').config();
-const router = require('./routes/router');
 
 const PORT = process.env.PORT || 8080;
 
 const app = express();
 
 app.use(cors()); // Add this line to enable CORS
-
-app.use(router);
-app.get('/', cors(), (req, res) => {});
 
 app.use(express.json());
 
