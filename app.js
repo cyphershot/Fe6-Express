@@ -1,41 +1,27 @@
-const express = require("express")
-const collection = require("./mongo")
-const cors = require("cors")
-const app = express()
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(cors())
-const User = require("./schemas/userSchema");
-const router = require("./routes/router")
+const express = require('express');
+const cors = require('cors');
+const routes = require('./routes/index');
+const { establishDbConnection } = require('./mongo');
+require('dotenv').config();
+const router = require('./routes/router');
 
+const PORT = process.env.PORT || 8080;
 
+const app = express();
 
-app.use(router)
+app.use(cors()); // Add this line to enable CORS
 
+app.use(router);
+app.get('/', cors(), (req, res) => {});
 
+app.use(express.json());
 
+routes.forEach(route => {
+  app[route.method](route.path, route.handler);
+});
 
-
-app.get("/",cors(),(req,res)=>{
-
-})
-// client side
-const clientRoute = require("./clientside/clientSide")
-
-app.use("/",clientRoute);
-app.use("/signup",clientRoute);
-
-// admin side
-const adminRoute = require("./adminSide/adminSide")
-app.use("/adminlogin",adminRoute);
-app.use("/adminsignup",adminRoute);
-
-
-
-
-
-
-
-app.listen(8000,()=>{
-    console.log("port connected");
-})
+establishDbConnection().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+});
