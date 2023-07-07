@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const Client = require('../../schemas/client');
 const { getRouteByKey } = require('../../routes/routes');
 const nodemailer = require('nodemailer');
-const {EMAIL, PASSWORD} = require('../../mailEnv')
+const { EMAIL, PASSWORD } = require('../../mailEnv');
 const Mailgen = require('mailgen');
 
 const clientSignUpRoute = {
@@ -14,7 +14,7 @@ const clientSignUpRoute = {
 
     try {
       const existingClient = await Client.findOne({ email });
-      
+
       if (existingClient) {
         return res.status(409).json({ response: 'User already exists' });
       }
@@ -23,33 +23,74 @@ const clientSignUpRoute = {
       const passwordHash = await bcrypt.hash(password, 10);
       const newUser = await Client.create({ email, password: passwordHash });
 
-      // Send email
-      const testAccount = await nodemailer.createTestAccount();
+      // Send email to admin
       const transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false,
+        service: 'gmail',
         auth: {
-          user: testAccount.user,
-          pass: testAccount.pass
+          user: EMAIL,
+          pass: PASSWORD
         }
       });
 
-      const message = {
-        from: '"Fred Foo 👻" <foo@example.com>',
-        to: email,
-        subject: "Welcome to our platform",
-        text: "Successfully Register with us",
-        html: "<b>Thank you for signing up!</b>",
+      const mailOptions = {
+        from: EMAIL,
+        to: 'admin@example.com', // Replace with your admin email address
+        subject: 'New User Sign Up',
+        text: `A new user signed up with the email: ${email}`,
+        attachments: [
+          {
+            filename: 'attachment.png', // Replace with your desired filename
+            path: '/path/to/attachment.png' // Replace with the path to your image file
+          }
+        ]
       };
 
-      transporter.sendMail(message, (error, info) => {
+      transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.log('Error sending email:', error);
-          return res.status(500).json({ response: 'Failed to send email' });
+          console.log('Error sending email to admin:', error);
+        } else {
+          console.log('Email sent to admin:', info.messageId);
         }
-        
-        console.log('Email sent:', info.messageId);
+      });
+
+      // Send email to user
+      const mailGenerator = new Mailgen({
+        theme: 'default',
+        product: {
+          name: 'Your Product',
+          link: 'https://yourproduct.com'
+        }
+      });
+
+      const response = {
+        body: {
+          name: 'John Doe', // Replace with the user's name
+          intro: 'Welcome to our platform!',
+          outro: 'Thank you for signing up.'
+        }
+      };
+
+      const emailBody = mailGenerator.generate(response);
+      const emailMessage = {
+        from: EMAIL,
+        to: email,
+        subject: 'Welcome to Our Platform',
+        html: emailBody,
+        attachments: [
+          {
+            filename: 'attachment.png', // Replace with your desired filename
+            path: '/path/to/attachment.png' // Replace with the path to your image file
+          }
+        ]
+      };
+
+      transporter.sendMail(emailMessage, (error, info) => {
+        if (error) {
+          console.log('Error sending email to user:', error);
+          return res.status(500).json({ response: 'Failed to send email to user' });
+        }
+
+        console.log('Email sent to user:', info.messageId);
         return res.status(201).json({
           msg: 'You should receive an email',
           info: info.messageId,
@@ -89,64 +130,42 @@ const mailRoute = {
   path: getRouteByKey('clientMail'),
   method:'post',
   handler: async (req, res) => {
+    const { userEmail } = req.body;
 
-    const {userEmail} = req.body;
-
-    let config = {
-      service : 'gmail',
-      auth : {
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
         user: EMAIL,
         pass: PASSWORD
       }
+    });
 
-    }
+    let mailOptions = {
+      from: EMAIL,
+      to: userEmail,
+      subject: 'Place Order',
+      text: 'Please place your order.',
+      attachments: [
+        {
+          filename: 'attachment.png', // Replace with your desired filename
+          path: '/path/to/attachment.png' // Replace with the path to your image file
+        }
+      ]
+    };
 
-    let transporter = nodemailer.createTransport(config)
-
-    let MailGenerator = new Mailgen({
-      theme: "default",
-      product:{
-        name:"Mailgen",
-        link:'https://mailgen.js/'
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log('Error sending email:', error);
+        return res.status(500).json({ response: 'Failed to send email' });
       }
-    })
-
-    let response= {
-      body:{
-        name: "ajml test",
-        intro: "Your bill has arrived!",
-        table: {
-          data: [
-          { 
-             item : "Nodemailer",
-            description:"A Backend application",
-          }
-
-          ]
-        },
-        outro: "Look forward to do more business"
-      }
-    }
-
-    let mail = MailGenerator.generate(response)
-
-    let message = {
-      from : EMAIL,
-      to : userEmail,
-      subject: "Place Order",
-      html:mail
-    }
-
-    transporter.sendMail(message).then(()=>{
+      
+      console.log('Email sent:', info.messageId);
       return res.status(201).json({
-        msg:"you should receieve an email"
-      })
-    }).catch(error => {
-      return res.status(500).json({error})
-    })
-
-
-    // res.status(201).json("Mail sent successfully");
+        msg: 'You should receive an email',
+        info: info.messageId,
+        preview: nodemailer.getTestMessageUrl(info)
+      });
+    });
   },
 };
 
